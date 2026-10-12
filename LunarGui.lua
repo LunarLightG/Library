@@ -234,12 +234,12 @@ function Library:CreateWindow(config)
 	local function DeriveTheme(c)
 		local h, s = Color3.toHSV(c)
 		local k = math.min(s, 1)
-		COLOR.red = c
+		COLOR.accent = c
 		COLOR.neon = c
-		COLOR.redBright = Color3.fromHSV(h, math.min(s, 0.55), 1)
-		COLOR.redSoft = Color3.fromHSV(h, math.min(s, 0.35), 1)
-		COLOR.redDark = Color3.fromHSV(h, math.min(s, 0.9), 0.35)
-		COLOR.innerBorderHover = COLOR.redBright
+		COLOR.accentBright = Color3.fromHSV(h, math.min(s, 0.55), 1)
+		COLOR.accentSoft = Color3.fromHSV(h, math.min(s, 0.35), 1)
+		COLOR.accentDark = Color3.fromHSV(h, math.min(s, 0.9), 0.35)
+		COLOR.innerBorderHover = COLOR.accentBright
 		COLOR.innerBg = Color3.fromHSV(h, k * 0.6, 0.1)
 		COLOR.innerBgHover = Color3.fromHSV(h, k * 0.84, 0.22)
 		COLOR.innerBorder = Color3.fromHSV(h, k * 0.69, 0.3)
@@ -254,6 +254,8 @@ function Library:CreateWindow(config)
 	end
 
 	DeriveTheme(HexToColor3(Settings.ThemeColor) or HexToColor3(DEFAULT_SETTINGS.ThemeColor))
+	COLOR.accent = HexToColor3(Settings.ThemeColor) or Color3.fromRGB(155, 92, 255)
+	COLOR.accentBright = COLOR.accent:Lerp(Color3.new(1, 1, 1), 0.22)
 
 	local Actions = {}
 
@@ -500,9 +502,6 @@ function Library:CreateWindow(config)
 		SIZE.maxH = math.max(SIZE.maxH, SIZE.defH)
 	end
 
-	-- Responsive first-open size:
-	-- desktop keeps the configured/default size; narrow screens start compact
-	-- so the window does not cover almost the entire mobile viewport.
 	do
 		local vp = Viewport()
 		if vp.X < 600 then
@@ -631,7 +630,7 @@ function Library:CreateWindow(config)
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.fromScale(ax, ay),
 				Size = UDim2.fromOffset(size * d, size * d),
-				BackgroundColor3 = COLOR.red,
+				BackgroundColor3 = COLOR.accent,
 				BackgroundTransparency = ({ 0.965, 0.95, 0.93 })[i],
 				BorderSizePixel = 0,
 				ZIndex = 11,
@@ -661,9 +660,9 @@ function Library:CreateWindow(config)
 	end
 
 	OnTheme(function()
-		local h, s, v = Color3.toHSV(COLOR.red)
+		local h, s, v = Color3.toHSV(COLOR.accent)
 		for _, l in ipairs(NebulaLayers) do
-			l.Frame.BackgroundColor3 = l.Second and Color3.fromHSV((h + 0.12) % 1, math.max(s, 0.5), 1) or COLOR.red
+			l.Frame.BackgroundColor3 = l.Second and Color3.fromHSV((h + 0.12) % 1, math.max(s, 0.5), 1) or COLOR.accent
 		end
 	end)
 
@@ -696,7 +695,7 @@ function Library:CreateWindow(config)
 			ZIndex = 12,
 		}, Sky)
 		Corner(m, 1)
-		local g = Gradient(m, ColorSequence.new(Color3.new(1, 1, 1), COLOR.redSoft), 0)
+		local g = Gradient(m, ColorSequence.new(Color3.new(1, 1, 1), COLOR.accentSoft), 0)
 		g.Transparency = NumberSequence.new({
 			NumberSequenceKeypoint.new(0, 0),
 			NumberSequenceKeypoint.new(0.18, 0.15),
@@ -850,14 +849,14 @@ function Library:CreateWindow(config)
 		Visible = false,
 		Position = UDim2.new(0, 15, 0, 49),
 		Size = UDim2.fromOffset(35, 2),
-		BackgroundColor3 = COLOR.red,
+		BackgroundColor3 = COLOR.accent,
 		BorderSizePixel = 0,
 		ZIndex = 20,
 	}, Sidebar)
 	Corner(LogoLine, 2)
 	local LogoGrad = Gradient(LogoLine, ColorSequence.new({
-		ColorSequenceKeypoint.new(0, COLOR.redBright),
-		ColorSequenceKeypoint.new(1, COLOR.redDark),
+		ColorSequenceKeypoint.new(0, COLOR.accentBright),
+		ColorSequenceKeypoint.new(1, COLOR.accentDark),
 	}), 0)
 
 	local Online = Txt(Sidebar, {
@@ -945,8 +944,8 @@ function Library:CreateWindow(config)
 	local CloseStroke = Stroke(Close, COLOR.border, 1, 0.1)
 
 	track(Close.MouseEnter:Connect(function()
-		Tween(Close, 0.15, { BackgroundColor3 = Color3.fromRGB(70, 12, 20), TextColor3 = COLOR.redBright, Rotation = 90 })
-		Tween(CloseStroke, 0.15, { Color = COLOR.red })
+		Tween(Close, 0.15, { BackgroundColor3 = Color3.fromRGB(70, 12, 20), TextColor3 = COLOR.accentBright, Rotation = 90 })
+		Tween(CloseStroke, 0.15, { Color = COLOR.accent })
 	end))
 	track(Close.MouseLeave:Connect(function()
 		Tween(Close, 0.15, { BackgroundColor3 = Color3.fromRGB(24, 19, 23), TextColor3 = COLOR.grey, Rotation = 0 })
@@ -1021,12 +1020,12 @@ function Library:CreateWindow(config)
 			layer.Grad.Color = NeonSequence
 		end
 		LogoTitle.TextColor3 = COLOR.white
-		PanelWord.TextColor3 = COLOR.redSoft
+		PanelWord.TextColor3 = COLOR.accentSoft
 		MoonStroke.Color = COLOR.neon
-		LogoLine.BackgroundColor3 = COLOR.red
+		LogoLine.BackgroundColor3 = COLOR.accent
 		LogoGrad.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, COLOR.redBright),
-			ColorSequenceKeypoint.new(1, COLOR.redDark),
+			ColorSequenceKeypoint.new(0, COLOR.accentBright),
+			ColorSequenceKeypoint.new(1, COLOR.accentDark),
 		})
 		SidebarLine.BackgroundColor3 = COLOR.border
 		Title.TextColor3 = COLOR.white
@@ -1039,7 +1038,7 @@ function Library:CreateWindow(config)
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
 			ScrollBarThickness = 2,
-			ScrollBarImageColor3 = COLOR.red,
+			ScrollBarImageColor3 = COLOR.accent,
 			CanvasSize = UDim2.new(0, 0, 0, 0),
 			Visible = false,
 		}, PageHolder)
@@ -1058,7 +1057,7 @@ function Library:CreateWindow(config)
 		end))
 
 		OnTheme(function()
-			Page.ScrollBarImageColor3 = COLOR.red
+			Page.ScrollBarImageColor3 = COLOR.accent
 		end)
 
 		Pages[name] = Page
@@ -1270,13 +1269,13 @@ function Library:CreateWindow(config)
 				NumberSequenceKeypoint.new(1, 0.9),
 			}),
 		}, Button)
-		local TabStroke = Stroke(Button, COLOR.red, 1, 1)
-		TabStroke.Color = COLOR.red
+		local TabStroke = Stroke(Button, COLOR.accent, 1, 1)
+		TabStroke.Color = COLOR.accent
 
 		local Bar = New("Frame", {
 			Position = UDim2.new(0, 5, 0.5, -8),
 			Size = UDim2.fromOffset(3, 16),
-			BackgroundColor3 = COLOR.red,
+			BackgroundColor3 = COLOR.accent,
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
 			ZIndex = 40,
@@ -1348,27 +1347,27 @@ function Library:CreateWindow(config)
 
 		function tab.Paint(instant)
 			local a = tab.Active
-			Button.BackgroundColor3 = COLOR.redDark
+			Button.BackgroundColor3 = COLOR.accentDark
 			Tween(Button, 0.18, { BackgroundTransparency = a and 0.2 or 1 })
 			Tween(TabStroke, 0.18, { Transparency = a and 0.55 or 1 })
-			TabStroke.Color = COLOR.red
-			IconColor(a and COLOR.redSoft or COLOR.grey, instant)
+			TabStroke.Color = COLOR.accent
+			IconColor(a and COLOR.accentSoft or COLOR.grey, instant)
 			Tween(Label, 0.18, { TextColor3 = a and COLOR.white or COLOR.grey })
 			Tween(Bar, 0.18, { BackgroundTransparency = a and 0 or 1 })
 		end
 
 		OnTheme(function()
-			Bar.BackgroundColor3 = COLOR.red
-			Button.BackgroundColor3 = COLOR.redDark
-			TabStroke.Color = COLOR.red
+			Bar.BackgroundColor3 = COLOR.accent
+			Button.BackgroundColor3 = COLOR.accentDark
+			TabStroke.Color = COLOR.accent
 			if tab.Active then
-				IconColor(COLOR.redSoft, true)
+				IconColor(COLOR.accentSoft, true)
 			end
 		end)
 
 		track(Button.MouseEnter:Connect(function()
 			if not tab.Active then
-				Button.BackgroundColor3 = COLOR.redDark
+				Button.BackgroundColor3 = COLOR.accentDark
 				Tween(Button, 0.15, { BackgroundTransparency = 0.7 })
 				Tween(Label, 0.15, { TextColor3 = COLOR.white })
 			end
@@ -1424,7 +1423,7 @@ function Library:CreateWindow(config)
 		local LineGrad = Gradient(Line, ColorSequence.new(COLOR.border), 0)
 
 		OnTheme(function()
-			Label.TextColor3 = COLOR.redSoft
+			Label.TextColor3 = COLOR.accentSoft
 			LineGrad.Color = ColorSequence.new(COLOR.border)
 		end)
 		return Holder
@@ -1449,7 +1448,7 @@ function Library:CreateWindow(config)
 			Visible = false,
 			Position = UDim2.new(0, 8, 0, 6),
 			Size = UDim2.new(0, 3, 1, -12),
-			BackgroundColor3 = COLOR.redBright,
+			BackgroundColor3 = COLOR.accentBright,
 			BorderSizePixel = 0,
 			ZIndex = 55,
 		}, Holder)
@@ -1549,7 +1548,7 @@ function Library:CreateWindow(config)
 				Thickness = hover and 1.8 or 1.5,
 			})
 			Tween(Chevron, 0.15, {
-				TextColor3 = danger and COLOR.bad or (hover and COLOR.redSoft or COLOR.grey),
+				TextColor3 = danger and COLOR.bad or (hover and COLOR.accentSoft or COLOR.grey),
 				Position = hover and UDim2.new(1, -11, 0.5, 0) or UDim2.new(1, -14, 0.5, 0),
 			})
 		end
@@ -1613,11 +1612,11 @@ function Library:CreateWindow(config)
 		local function paint()
 			Tween(Holder, 0.15, { BackgroundColor3 = (hover and not state) and COLOR.innerBgHover or COLOR.innerBg })
 			Tween(HolderStroke, 0.18, {
-				Color = state and COLOR.red or (hover and COLOR.redBright or COLOR.innerBorder),
+				Color = state and COLOR.accent or (hover and COLOR.accentBright or COLOR.innerBorder),
 				Thickness = (state or hover) and 1.7 or 1.5,
 			})
-			Tween(Switch, 0.18, { BackgroundColor3 = state and COLOR.red or COLOR.switchOff })
-			Tween(SwitchStroke, 0.18, { Color = state and COLOR.redBright or COLOR.switchBorder })
+			Tween(Switch, 0.18, { BackgroundColor3 = state and COLOR.accent or COLOR.switchOff })
+			Tween(SwitchStroke, 0.18, { Color = state and COLOR.accentBright or COLOR.switchBorder })
 			Tween(Knob, 0.18, {
 				Position = state and UDim2.new(1, -17, 0.5, 0) or UDim2.new(0, 3, 0.5, 0),
 				BackgroundColor3 = state and Color3.new(1, 1, 1) or Color3.fromRGB(215, 215, 220),
@@ -1675,7 +1674,7 @@ function Library:CreateWindow(config)
 			Text = "",
 			Font = Enum.Font.GothamBold,
 			TextSize = 12,
-			TextColor3 = COLOR.redSoft,
+			TextColor3 = COLOR.accentSoft,
 			ClearTextOnFocus = false,
 			TextXAlignment = Enum.TextXAlignment.Center,
 			ZIndex = 62,
@@ -1692,7 +1691,7 @@ function Library:CreateWindow(config)
 		Corner(Track, 3)
 		local Fill = New("Frame", {
 			Size = UDim2.fromScale(0, 1),
-			BackgroundColor3 = COLOR.red,
+			BackgroundColor3 = COLOR.accent,
 			BorderSizePixel = 0,
 			ZIndex = 61,
 		}, Track)
@@ -1706,7 +1705,7 @@ function Library:CreateWindow(config)
 			ZIndex = 65,
 		}, Track)
 		Corner(Knob, 7)
-		local KnobStroke = Stroke(Knob, COLOR.red, 2, 0)
+		local KnobStroke = Stroke(Knob, COLOR.accent, 2, 0)
 
 		local Hit = New("TextButton", {
 			AnchorPoint = Vector2.new(1, 0.5),
@@ -1718,11 +1717,11 @@ function Library:CreateWindow(config)
 		}, Row)
 
 		OnTheme(function()
-			ValueLabel.TextColor3 = COLOR.redSoft
+			ValueLabel.TextColor3 = COLOR.accentSoft
 			ValueBox.BackgroundColor3 = COLOR.black
 			ValueStroke.Color = COLOR.innerBorder
-			Fill.BackgroundColor3 = COLOR.red
-			KnobStroke.Color = COLOR.red
+			Fill.BackgroundColor3 = COLOR.accent
+			KnobStroke.Color = COLOR.accent
 			RowStroke.Color = COLOR.innerBorder
 			Row.BackgroundColor3 = COLOR.innerBg
 		end)
@@ -1746,7 +1745,7 @@ function Library:CreateWindow(config)
 		setValue(default, true)
 
 		track(ValueLabel.Focused:Connect(function()
-			Tween(ValueStroke, 0.15, { Color = COLOR.redBright, Thickness = 1.8, Transparency = 0 })
+			Tween(ValueStroke, 0.15, { Color = COLOR.accentBright, Thickness = 1.8, Transparency = 0 })
 			Tween(ValueBox, 0.15, { BackgroundColor3 = Color3.fromRGB(28, 28, 36) })
 			ValueLabel.TextColor3 = COLOR.white
 			ValueLabel.Text = tostring(value)
@@ -1760,7 +1759,7 @@ function Library:CreateWindow(config)
 		track(ValueLabel.FocusLost:Connect(function()
 			Tween(ValueStroke, 0.15, { Color = COLOR.innerBorder, Thickness = 1.2, Transparency = 0.1 })
 			Tween(ValueBox, 0.15, { BackgroundColor3 = COLOR.black })
-			ValueLabel.TextColor3 = COLOR.redSoft
+			ValueLabel.TextColor3 = COLOR.accentSoft
 			local n = tonumber(ValueLabel.Text)
 			if n then
 				setValue(n, true)
@@ -1967,13 +1966,13 @@ function Library:CreateWindow(config)
 		local function paint()
 			Tween(Head, 0.15, { BackgroundColor3 = (hover or open) and COLOR.innerBgHover or COLOR.innerBg })
 			Tween(HeadStroke, 0.15, {
-				Color = open and COLOR.red or (hover and COLOR.innerBorderHover or COLOR.innerBorder),
+				Color = open and COLOR.accent or (hover and COLOR.innerBorderHover or COLOR.innerBorder),
 				Thickness = (open or hover) and 1.7 or 1.5,
 			})
-			Tween(PillStroke, 0.15, { Color = open and COLOR.redBright or COLOR.innerBorder })
+			Tween(PillStroke, 0.15, { Color = open and COLOR.accentBright or COLOR.innerBorder })
 			Tween(Arrow, 0.18, { Rotation = open and 180 or 0 })
 			for _, arm in ipairs(ArrowArms) do
-				Tween(arm, 0.18, { BackgroundColor3 = open and COLOR.redSoft or COLOR.grey })
+				Tween(arm, 0.18, { BackgroundColor3 = open and COLOR.accentSoft or COLOR.grey })
 			end
 			ValueLabel.Text = summary()
 			ValueLabel.TextColor3 = (not available()) and COLOR.bad or COLOR.white
@@ -2060,8 +2059,8 @@ function Library:CreateWindow(config)
 						BackgroundTransparency = sel and 0.55 or (rowHover and 0.7 or 1),
 						BackgroundColor3 = COLOR.innerBgHover,
 					})
-					Tween(Box, 0.12, { BackgroundColor3 = sel and COLOR.red or COLOR.switchOff })
-					Tween(BoxStroke, 0.12, { Color = sel and COLOR.redBright or COLOR.switchBorder })
+					Tween(Box, 0.12, { BackgroundColor3 = sel and COLOR.accent or COLOR.switchOff })
+					Tween(BoxStroke, 0.12, { Color = sel and COLOR.accentBright or COLOR.switchBorder })
 					Tween(Mark, 0.12, { BackgroundTransparency = sel and 0 or 1 })
 					Label.TextColor3 = sel and COLOR.white or COLOR.grey
 				end
@@ -2303,7 +2302,7 @@ function Library:CreateWindow(config)
 			LayoutOrder = 2,
 			ZIndex = 50,
 			ScrollBarThickness = 3,
-			ScrollBarImageColor3 = COLOR.redBright,
+			ScrollBarImageColor3 = COLOR.accentBright,
 			CanvasSize = UDim2.new(),
 			AutomaticCanvasSize = Enum.AutomaticSize.Y,
 			ScrollingDirection = Enum.ScrollingDirection.Y,
@@ -2364,17 +2363,17 @@ function Library:CreateWindow(config)
 		local function paint()
 			Tween(Head, 0.15, { BackgroundColor3 = (hover or open) and COLOR.innerBgHover or COLOR.innerBg })
 			Tween(HeadStroke, 0.15, {
-				Color = open and COLOR.red or (hover and COLOR.innerBorderHover or COLOR.innerBorder),
+				Color = open and COLOR.accent or (hover and COLOR.innerBorderHover or COLOR.innerBorder),
 				Thickness = (open or hover) and 1.7 or 1.5,
 			})
-			Tween(PillStroke, 0.15, { Color = open and COLOR.redBright or COLOR.innerBorder })
+			Tween(PillStroke, 0.15, { Color = open and COLOR.accentBright or COLOR.innerBorder })
 			Tween(Arrow, 0.18, { Rotation = open and 180 or 0 })
 			for _, arm in ipairs(ArrowArms) do
-				Tween(arm, 0.18, { BackgroundColor3 = open and COLOR.redSoft or COLOR.grey })
+				Tween(arm, 0.18, { BackgroundColor3 = open and COLOR.accentSoft or COLOR.grey })
 			end
 			Pill.BackgroundColor3 = COLOR.black
 			List.BackgroundColor3 = COLOR.innerBg
-			List.ScrollBarImageColor3 = COLOR.redBright
+			List.ScrollBarImageColor3 = COLOR.accentBright
 			ListStroke.Color = COLOR.innerBorder
 			paintPill()
 		end
@@ -2481,8 +2480,8 @@ function Library:CreateWindow(config)
 						BackgroundTransparency = sel and 0.55 or (rowHover and 0.7 or 1),
 						BackgroundColor3 = COLOR.innerBgHover,
 					})
-					Tween(Dot, 0.12, { BackgroundColor3 = sel and COLOR.red or COLOR.switchOff })
-					Tween(DotStroke, 0.12, { Color = sel and COLOR.redBright or COLOR.switchBorder })
+					Tween(Dot, 0.12, { BackgroundColor3 = sel and COLOR.accent or COLOR.switchOff })
+					Tween(DotStroke, 0.12, { Color = sel and COLOR.accentBright or COLOR.switchBorder })
 					Tween(Mark, 0.12, { BackgroundTransparency = sel and 0 or 1 })
 					Name.TextColor3 = sel and COLOR.white or COLOR.grey
 				end
@@ -2584,12 +2583,12 @@ function Library:CreateWindow(config)
 		local Dot = New("Frame", {
 			Position = UDim2.new(0, 2, 0.5, -3),
 			Size = UDim2.fromOffset(6, 6),
-			BackgroundColor3 = COLOR.redBright,
+			BackgroundColor3 = COLOR.accentBright,
 			BorderSizePixel = 0,
 		}, Row)
 		Corner(Dot, 6)
 		OnTheme(function()
-			Dot.BackgroundColor3 = COLOR.redBright
+			Dot.BackgroundColor3 = COLOR.accentBright
 		end)
 		Txt(Row, {
 			Position = UDim2.new(0, 16, 0, 0),
@@ -2627,7 +2626,7 @@ function Library:CreateWindow(config)
 		if on then
 			local gen = rainbowGen
 			task.spawn(function()
-				local h = Color3.toHSV(HexToColor3(Settings.ThemeColor) or COLOR.red)
+				local h = Color3.toHSV(HexToColor3(Settings.ThemeColor) or COLOR.accent)
 				while not destroyed and Settings.Rainbow and gen == rainbowGen do
 					h = (h + 0.02 * (Settings.RainbowSpeed or 1)) % 1
 					Actions.ApplyColor(Color3.fromHSV(h, 0.7, 1))
@@ -2635,7 +2634,7 @@ function Library:CreateWindow(config)
 				end
 			end)
 		else
-			Actions.ApplyColor(HexToColor3(Settings.ThemeColor) or COLOR.red)
+			Actions.ApplyColor(HexToColor3(Settings.ThemeColor) or COLOR.accent)
 		end
 		if Actions.OnRainbow then
 			Actions.OnRainbow(on)
@@ -2660,7 +2659,7 @@ function Library:CreateWindow(config)
 		if Settings.Rainbow then
 			return
 		end
-		Actions.ApplyColor(HexToColor3(Settings.ThemeColor) or COLOR.red)
+		Actions.ApplyColor(HexToColor3(Settings.ThemeColor) or COLOR.accent)
 	end
 
 	function Actions.SetMulti(on, silent)
@@ -2790,7 +2789,7 @@ function Library:CreateWindow(config)
 		setValue(opts.Default, true)
 
 		track(Box.Focused:Connect(function()
-			Tween(PillStroke, 0.15, { Color = COLOR.redBright, Thickness = 1.8, Transparency = 0 })
+			Tween(PillStroke, 0.15, { Color = COLOR.accentBright, Thickness = 1.8, Transparency = 0 })
 		end))
 		track(Box.FocusLost:Connect(function()
 			Tween(PillStroke, 0.15, { Color = COLOR.innerBorder, Thickness = 1.2, Transparency = 0.1 })
@@ -2960,28 +2959,29 @@ function Library:CreateWindow(config)
 	end
 
 	local function configPath(name)
-		return CONFIG_FOLDER .. "/" .. tostring(name) .. ".json"
+		local safe = tostring(name or ""):gsub("[^%w _%-]", ""):gsub("^%s+", ""):gsub("%s+$", "")
+		if safe == "" then
+			safe = "Default"
+		end
+		return CONFIG_FOLDER .. "/" .. safe .. ".json"
 	end
 
 	function Window:SaveConfig(name)
 		if not hasFileApi then
 			return false
 		end
-		local data = {}
+		local data = { __LunarConfig = 1, __Name = tostring(name or "Default"), __SavedAt = os.time(), __Values = {} }
 		for flag, el in pairs(Flags) do
 			if el.Get then
 				local ok, v = pcall(el.Get, el)
-				if ok and v ~= nil then
-					data[flag] = v
-				end
+				if ok and v ~= nil then data.__Values[flag] = v end
 			end
 		end
-		return (pcall(function()
-			if type(isfolder) == "function" and type(makefolder) == "function" and not isfolder(CONFIG_FOLDER) then
-				makefolder(CONFIG_FOLDER)
-			end
+		local ok = pcall(function()
+			if type(isfolder) == "function" and type(makefolder) == "function" and not isfolder(CONFIG_FOLDER) then makefolder(CONFIG_FOLDER) end
 			writefile(configPath(name), HttpService:JSONEncode(data))
-		end))
+		end)
+		return ok
 	end
 
 	function Window:LoadConfig(name)
@@ -2995,16 +2995,29 @@ function Library:CreateWindow(config)
 			end
 			return HttpService:JSONDecode(readfile(path))
 		end)
-		if not ok or type(data) ~= "table" then
-			return false
-		end
-		for flag, value in pairs(data) do
-			local el = Flags[flag]
-			if el and el.Set then
-				pcall(el.Set, el, value)
+		if not ok or type(data) ~= "table" then return false end
+		local values = type(data.__Values) == "table" and data.__Values or data
+		for flag, value in pairs(values) do
+			if type(flag) == "string" and flag:sub(1, 2) ~= "__" then
+				local el = Flags[flag]
+				if el and el.Set then pcall(el.Set, el, value) end
 			end
 		end
 		return true
+	end
+
+	function Window:ConfigExists(name)
+		if not hasFileApi or type(isfile) ~= "function" then return false end
+		local ok, result = pcall(function() return isfile(configPath(name)) end)
+		return ok and result == true
+	end
+
+	function Window:SaveDefaultConfig()
+		return self:SaveConfig("Default")
+	end
+
+	function Window:LoadDefaultConfig()
+		return self:LoadConfig("Default")
 	end
 
 	function Window:ListConfigs()
@@ -3021,6 +3034,31 @@ function Library:CreateWindow(config)
 		end
 		table.sort(out)
 		return out
+	end
+
+	function Window:CacheImageAsset(filename, url)
+		filename = tostring(filename or "asset.bin"):gsub("[^%w_./%-]", "_")
+		if type(url) ~= "string" or url == "" then return nil end
+		if type(isfile) == "function" and type(writefile) == "function" and type(getcustomasset) == "function" then
+			local ok = pcall(function()
+				if type(isfolder) == "function" and type(makefolder) == "function" then
+					local folder = filename:match("^(.*)/[^/]+$")
+					if folder and folder ~= "" and not isfolder(folder) then makefolder(folder) end
+				end
+				if not isfile(filename) then
+					local req = (syn and syn.request) or (http and http.request) or http_request or request
+					if type(req) == "function" then
+						local response = req({ Url = url, Method = "GET" })
+						if response and response.Body and #response.Body > 128 then writefile(filename, response.Body) end
+					end
+				end
+			end)
+			if ok and isfile(filename) then
+				local success, asset = pcall(getcustomasset, filename)
+				if success and asset then return asset end
+			end
+		end
+		return url
 	end
 
 	function Window:AddCreditsTab(o)
@@ -3061,7 +3099,7 @@ function Library:CreateWindow(config)
 		local Line = New("Frame", {
 			Visible = false,
 			Size = UDim2.fromOffset(42, 2),
-			BackgroundColor3 = COLOR.red,
+			BackgroundColor3 = COLOR.accent,
 			BorderSizePixel = 0,
 			LayoutOrder = 2,
 			ZIndex = 55,
@@ -3095,8 +3133,8 @@ function Library:CreateWindow(config)
 		end
 
 		OnTheme(function()
-			Logo.TextColor3 = COLOR.red
-			Line.BackgroundColor3 = COLOR.red
+			Logo.TextColor3 = COLOR.accent
+			Line.BackgroundColor3 = COLOR.accent
 			Card.BackgroundColor3 = COLOR.innerBg
 			CardStroke.Color = Color3.new(1, 1, 1)
 			CardStrokeGrad.Color = NeonSequence
@@ -3257,7 +3295,7 @@ function Library:CreateWindow(config)
 					AnchorPoint = Vector2.new(0.5, 0),
 					Position = UDim2.new(0.5, 0, 0, 0),
 					Size = UDim2.fromOffset(22, 2),
-					BackgroundColor3 = COLOR.red,
+					BackgroundColor3 = COLOR.accent,
 					BorderSizePixel = 0,
 					ZIndex = 60,
 				}, T)
@@ -3284,8 +3322,8 @@ function Library:CreateWindow(config)
 				OnTheme(function()
 					T.BackgroundColor3 = COLOR.innerBg
 					S.Color = COLOR.innerBorder
-					Bar.BackgroundColor3 = COLOR.red
-					V.TextColor3 = COLOR.redSoft
+					Bar.BackgroundColor3 = COLOR.accent
+					V.TextColor3 = COLOR.accentSoft
 				end)
 				return V
 			end
@@ -3486,7 +3524,7 @@ function Library:CreateWindow(config)
 				Position = UDim2.fromOffset(16, 24),
 				Size = UDim2.new(1, -32, 0, 14),
 				TextSize = 10,
-				TextColor3 = COLOR.redSoft,
+				TextColor3 = COLOR.accentSoft,
 				TextTruncate = Enum.TextTruncate.AtEnd,
 				ZIndex = 60,
 			})
@@ -3529,7 +3567,7 @@ function Library:CreateWindow(config)
 					local sel = pickTarget == i
 					local Sw = New("TextButton", {
 						Size = UDim2.fromOffset(32, 32),
-						BackgroundColor3 = HexToColor3(hex) or COLOR.red,
+						BackgroundColor3 = HexToColor3(hex) or COLOR.accent,
 						AutoButtonColor = false,
 						Text = "",
 						LayoutOrder = i,
@@ -3561,7 +3599,7 @@ function Library:CreateWindow(config)
 				end
 				if #list < 5 then
 					mini("+", 20, function()
-						local h, s, v = Color3.toHSV(HexToColor3(list[#list]) or COLOR.red)
+						local h, s, v = Color3.toHSV(HexToColor3(list[#list]) or COLOR.accent)
 						table.insert(Settings.NeonColors, Color3ToHex(Color3.fromHSV((h + 0.17) % 1, s, v)))
 						if not Settings.Multi then
 							Actions.SetMulti(true, true)
@@ -3594,7 +3632,7 @@ function Library:CreateWindow(config)
 			OnTheme(function()
 				Palette.BackgroundColor3 = COLOR.innerBg
 				PalStroke.Color = COLOR.innerBorder
-				PalStatus.TextColor3 = COLOR.redSoft
+				PalStatus.TextColor3 = COLOR.accentSoft
 			end)
 
 			local _, comboDrop = Dropdown(Page, "Neon Combo", {
@@ -3698,7 +3736,7 @@ function Library:CreateWindow(config)
 				AnchorPoint = Vector2.new(1, 0),
 				Position = UDim2.new(1, -14, 0, 14),
 				Size = UDim2.fromOffset(70, 42),
-				BackgroundColor3 = COLOR.red,
+				BackgroundColor3 = COLOR.accent,
 				BorderSizePixel = 0,
 				AutoButtonColor = false,
 				Text = "APPLY",
@@ -3708,7 +3746,7 @@ function Library:CreateWindow(config)
 				ZIndex = 65,
 			}, Picker)
 			Corner(Apply, 10)
-			local ApplyStroke = Stroke(Apply, COLOR.redBright, 1.2, 0.35)
+			local ApplyStroke = Stroke(Apply, COLOR.accentBright, 1.2, 0.35)
 			Gradient(Apply, ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(190, 190, 190)), 90)
 
 			Txt(Picker, {
@@ -3910,7 +3948,7 @@ function Library:CreateWindow(config)
 			end
 
 			track(Input.Focused:Connect(function()
-				Tween(FieldStroke, 0.15, { Color = COLOR.redBright, Thickness = 2 })
+				Tween(FieldStroke, 0.15, { Color = COLOR.accentBright, Thickness = 2 })
 				Tween(Field, 0.15, { BackgroundColor3 = Color3.fromRGB(18, 18, 24) })
 			end))
 			track(Input:GetPropertyChangedSignal("Text"):Connect(function()
@@ -3951,19 +3989,19 @@ function Library:CreateWindow(config)
 			end))
 			track(Apply.Activated:Connect(commitHex))
 			Hover(Apply, function(h)
-				Tween(Apply, 0.12, { BackgroundColor3 = h and COLOR.redBright or COLOR.red })
+				Tween(Apply, 0.12, { BackgroundColor3 = h and COLOR.accentBright or COLOR.accent })
 			end)
 
 			OnTheme(function()
 				Picker.BackgroundColor3 = COLOR.innerBg
 				PickerStroke.Color = COLOR.innerBorder
 				FieldStroke.Color = COLOR.innerBorder
-				Apply.BackgroundColor3 = COLOR.red
-				ApplyStroke.Color = COLOR.redBright
+				Apply.BackgroundColor3 = COLOR.accent
+				ApplyStroke.Color = COLOR.accentBright
 			end)
 
 			pickerRef.Sync = picker.Sync
-			picker.Sync(HexToColor3(Settings.ThemeColor) or COLOR.red)
+			picker.Sync(HexToColor3(Settings.ThemeColor) or COLOR.accent)
 
 			Section(Page, "Actions")
 			Button(Page, "Reset Settings", function()
@@ -4152,13 +4190,13 @@ function Library:CreateWindow(config)
 		ZIndex = 12,
 	}, ToggleButton)
 	Corner(ToggleBar, 2)
-	local ToggleBarGrad = Gradient(ToggleBar, ColorSequence.new(COLOR.red), 0)
+	local ToggleBarGrad = Gradient(ToggleBar, ColorSequence.new(COLOR.accent), 0)
 
 	local ToggleDot = New("Frame", {
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -7, 0, 7),
 		Size = UDim2.fromOffset(6, 6),
-		BackgroundColor3 = COLOR.redBright,
+		BackgroundColor3 = COLOR.accentBright,
 		BorderSizePixel = 0,
 		ZIndex = 12,
 	}, ToggleButton)
@@ -4175,11 +4213,11 @@ function Library:CreateWindow(config)
 			layer.Grad.Color = NeonSequence
 		end
 		ToggleBarGrad.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, COLOR.redDark),
-			ColorSequenceKeypoint.new(0.5, COLOR.redSoft),
-			ColorSequenceKeypoint.new(1, COLOR.redDark),
+			ColorSequenceKeypoint.new(0, COLOR.accentDark),
+			ColorSequenceKeypoint.new(0.5, COLOR.accentSoft),
+			ColorSequenceKeypoint.new(1, COLOR.accentDark),
 		})
-		ToggleDot.BackgroundColor3 = PanelVisible and COLOR.redBright or Color3.fromRGB(90, 90, 100)
+		ToggleDot.BackgroundColor3 = PanelVisible and COLOR.accentBright or Color3.fromRGB(90, 90, 100)
 	end)
 
 	local function SetToggleCenter(v)
@@ -4210,7 +4248,7 @@ function Library:CreateWindow(config)
 	local POP = 26
 
 	local function SetToggleState(open)
-		Tween(ToggleDot, 0.2, { BackgroundColor3 = open and COLOR.redBright or Color3.fromRGB(90, 90, 100) })
+		Tween(ToggleDot, 0.2, { BackgroundColor3 = open and COLOR.accentBright or Color3.fromRGB(90, 90, 100) })
 		Tween(ToggleLabel, 0.2, { TextTransparency = open and 0 or 0.4 })
 	end
 
@@ -4316,7 +4354,7 @@ function Library:CreateWindow(config)
 	end
 	local gripHover, gripActive = false, false
 	local function PaintGrip()
-		local c = (gripHover or gripActive) and COLOR.redSoft or COLOR.innerBorder
+		local c = (gripHover or gripActive) and COLOR.accentSoft or COLOR.innerBorder
 		for _, d in ipairs(GripDots) do
 			Tween(d, 0.15, { BackgroundColor3 = c })
 		end
@@ -4345,9 +4383,9 @@ function Library:CreateWindow(config)
 		ZIndex = 250,
 	}, Main)
 	Corner(SizeTip, 12)
-	local SizeTipStroke = Stroke(SizeTip, COLOR.red, 1.5, 0.1)
+	local SizeTipStroke = Stroke(SizeTip, COLOR.accent, 1.5, 0.1)
 	OnTheme(function()
-		SizeTipStroke.Color = COLOR.red
+		SizeTipStroke.Color = COLOR.accent
 	end)
 	local tipToken = 0
 
@@ -4390,8 +4428,6 @@ function Library:CreateWindow(config)
 	end
 	track(Gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(Actions.Refit))
 
-	-- Some devices change the camera viewport before the ScreenGui reports
-	-- its final size (rotation, split-screen, emulator resizing).
 	local cameraViewportConnection
 	local function BindCameraViewport()
 		if cameraViewportConnection then
@@ -4530,6 +4566,8 @@ function Library:CreateWindow(config)
 	end
 
 	function Window:SetThemeColor(c)
+		local parsedAccent = typeof(c) == "Color3" and c or HexToColor3(c)
+		if parsedAccent then COLOR.accent = parsedAccent; COLOR.accentBright = parsedAccent:Lerp(Color3.new(1, 1, 1), 0.22) end
 		if type(c) == "string" then
 			c = HexToColor3(c)
 		end
@@ -4556,7 +4594,6 @@ function Library:CreateWindow(config)
 		return hookAvailable(name)
 	end
 
-	-- Public flag API: useful for synchronizing GUI controls with a Hub.
 	function Window:GetFlag(flag)
 		local el = Flags[tostring(flag)]
 		if not el then
@@ -4626,7 +4663,6 @@ function Library:CreateWindow(config)
 	return Window
 end
 
--- Compatibility aliases and helpers.
 Library.new = Library.CreateWindow
 
 function Library:GetVersion()
