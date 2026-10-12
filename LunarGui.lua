@@ -608,6 +608,18 @@ function Library:CreateWindow(config)
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 4, 12)),
 	}), 65)
 
+	-- Optional Background image (executor should provide a usable asset URI).
+	local BackgroundImage = config.BackgroundImage
+	if type(BackgroundImage) == "string" and BackgroundImage ~= "" then
+		local bg = New("ImageLabel", {
+			Name = "LunarBackground", BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 1), Position = UDim2.fromScale(0, 0),
+			Image = BackgroundImage, ScaleType = Enum.ScaleType.Crop,
+			ImageTransparency = tonumber(config.BackgroundTransparency) or 0.25, ZIndex = 10,
+		}, Main)
+		Corner(bg, 16)
+	end
+
 	local MainStroke = Stroke(Main, Color3.new(1, 1, 1), 2, 0)
 	local MainStrokeGrad = Gradient(MainStroke, NeonSequence, 0)
 	Spin(MainStrokeGrad, 5)
@@ -826,6 +838,16 @@ function Library:CreateWindow(config)
 			ZIndex = 22,
 		}, MoonDisc)
 		Corner(crater, c[3])
+	end
+
+	-- Optional custom Logo image.
+	if type(config.LogoImage) == "string" and config.LogoImage ~= "" then
+		Moon.Visible = false
+		New("ImageLabel", {
+			Name = "LunarLogo", Position = UDim2.fromOffset(8, 7),
+			Size = UDim2.fromOffset(40, 40), BackgroundTransparency = 1,
+			Image = config.LogoImage, ScaleType = Enum.ScaleType.Fit, ZIndex = 23,
+		}, Sidebar)
 	end
 
 	local LogoTitle = Txt(Sidebar, {
