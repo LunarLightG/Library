@@ -6,7 +6,7 @@ local HttpService = game:GetService("HttpService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local Stats = game:GetService("Stats")
 
-local Library = { Version = "1.0.0" }
+local Library = { Version = "1.2.0" }
 
 local DEFAULT_STRINGS = {
 	NotAvailable = "Not Available",
@@ -499,6 +499,18 @@ function Library:CreateWindow(config)
 		SIZE.maxW = math.max(SIZE.maxW, SIZE.defW)
 		SIZE.maxH = math.max(SIZE.maxH, SIZE.defH)
 	end
+
+	-- Responsive first-open size:
+	-- desktop keeps the configured/default size; narrow screens start compact
+	-- so the window does not cover almost the entire mobile viewport.
+	do
+		local vp = Viewport()
+		if vp.X < 600 then
+			SIZE.defW = math.min(SIZE.defW, math.max(280, vp.X - 16))
+			SIZE.defH = math.min(SIZE.defH, math.max(240, vp.Y - 16))
+		end
+	end
+
 	local PanelSize, PanelPos
 
 	local function ClampSize(w, h)
@@ -4378,6 +4390,27 @@ function Library:CreateWindow(config)
 	end
 	track(Gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(Actions.Refit))
 
+	-- Some devices change the camera viewport before the ScreenGui reports
+	-- its final size (rotation, split-screen, emulator resizing).
+	local cameraViewportConnection
+	local function BindCameraViewport()
+		if cameraViewportConnection then
+			cameraViewportConnection:Disconnect()
+			cameraViewportConnection = nil
+		end
+		local camera = workspace.CurrentCamera
+		if camera then
+			cameraViewportConnection = camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+				if not destroyed then
+					Actions.Refit()
+				end
+			end)
+			track(cameraViewportConnection)
+		end
+	end
+	BindCameraViewport()
+	track(workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(BindCameraViewport))
+
 	function Actions.SetPulse(on)
 		Settings.Pulse = on
 		for _, t in ipairs(SpinTweens) do
@@ -4523,6 +4556,65 @@ function Library:CreateWindow(config)
 		return hookAvailable(name)
 	end
 
+	-- Public flag API: useful for synchronizing GUI controls with a Hub.
+	function Window:GetFlag(flag)
+		local el = Flags[tostring(flag)]
+		if not el then
+			return nil
+		end
+		if type(el.Get) == "function" then
+			local ok, value = pcall(el.Get, el)
+			if ok then
+				return value
+			end
+		end
+		return nil
+	end
+
+	function Window:SetFlag(flag, value)
+		local el = Flags[tostring(flag)]
+		if not el or type(el.Set) ~= "function" then
+			return false
+		end
+		local ok, result = pcall(el.Set, el, value)
+		return ok and result ~= false
+	end
+
+	function Window:GetFlags()
+		local out = {}
+		for flag, el in pairs(Flags) do
+			if type(el.Get) == "function" then
+				local ok, value = pcall(el.Get, el)
+				if ok and value ~= nil then
+					out[flag] = value
+				end
+			end
+		end
+		return out
+	end
+
+	function Window:RefreshLayout()
+		if destroyed then
+			return false
+		end
+		if Actions.Refit then
+			local ok = pcall(Actions.Refit)
+			return ok
+		end
+		return false
+	end
+
+	function Window:SetFloatingVisible(visible)
+		if destroyed then
+			return false
+		end
+		Settings.ShowFloating = visible == true
+		if Actions.RefreshFloating then
+			Actions.RefreshFloating()
+		end
+		return true
+	end
+
 	function Window:IsDestroyed()
 		return destroyed
 	end
@@ -4534,6 +4626,15 @@ function Library:CreateWindow(config)
 	return Window
 end
 
+-- Compatibility aliases and helpers.
 Library.new = Library.CreateWindow
+
+function Library:GetVersion()
+	return self.Version
+end
+
+function Library:IsClient()
+	return Players.LocalPlayer ~= nil
+end
 
 return Library
